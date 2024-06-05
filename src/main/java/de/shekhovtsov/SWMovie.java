@@ -1,7 +1,8 @@
 package de.shekhovtsov;
 
 public record SWMovie(
-        String name,
-        String[] characters
+        String title,
+        SWCharacter[] swCharacters
 ) {
+
 }

@@ -1,6 +1,8 @@
 package de.shekhovtsov;
 
 public record SWCharacter(
-        String[] swSpeciesLink
+        String name,
+        SWSpecification[] swSpecifications
 ) {
+
 }
