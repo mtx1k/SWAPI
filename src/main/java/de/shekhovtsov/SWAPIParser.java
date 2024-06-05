@@ -11,35 +11,70 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 public class SWAPIParser {
-    Map<String, String> uniqueCharacters = new HashMap<>();
-    private final List<SWMovie> swMovies = new ArrayList<>();
+    List<SWCharacter> characterList = new ArrayList<>();
 
     public void parseSWAPI(String path) throws URISyntaxException, IOException {
         JsonNode root = parsePath(path);
         JsonNode movies = root.get("results");
 
         for (int i = 0; i < 3; i++) {
-            String title = movies.get(i).get("title").asText();
             JsonNode characters = movies.get(i).get("characters");
-            SWCharacter[] swCharacters = new SWCharacter[characters.size()];
             for (int j = 0; j < characters.size(); j++) {
                 JsonNode character = parsePath(characters.get(j).asText());
-                String characterName = character.get("name").asText();
-                String specName = "unknown";
-
-                if(character.get("species").get(0) != null) {
-                    String specificationPath = character.get("species").get(0).asText();
-                    JsonNode spec = parsePath(specificationPath);
-                    specName = spec.get("name").asText();
+                if (!isExist(character.get("name").asText())) {
+                    parseCustomer(character);
                 }
-                SWSpecification[] swSpecification = {new SWSpecification(specName)};
-                swCharacters[j] = new SWCharacter(characterName, swSpecification);
-                uniqueCharacters.put(characterName, specName);
             }
-            swMovies.add(new SWMovie(title, swCharacters));
         }
+    }
+
+    private void parseCustomer(JsonNode character) throws URISyntaxException, IOException {
+        String name = character.get("name").asText();
+        String height = character.get("height").asText();
+        String mass = character.get("mass").asText();
+        String hair_color = character.get("hair_color").asText();
+        String skin_color = character.get("skin_color").asText();
+        String eye_color = character.get("eye_color").asText();
+        String birth_year = character.get("birth_year").asText();
+        String gender = character.get("gender").asText();
+        String[] films = getFilms(character.get("films"));
+        SWSpecification[] species = getSpecies(character.get("species"));
+        characterList.add(new SWCharacter(name, height, mass, hair_color, skin_color, eye_color, birth_year, gender, species, films));
+    }
+
+    private SWSpecification[] getSpecies(JsonNode species) throws URISyntaxException, IOException {
+        String name = "unknown";
+        if (species.get(0) != null) {
+            name = parsePath(species.get(0).asText()).get("name").asText();
+        }
+        return new SWSpecification[] { new SWSpecification(name) };
+    }
+
+    private String[] getFilms(JsonNode films) {
+        List<String> titles = new ArrayList<>();
+        for (int i = 0; i < films.size(); i++) {
+            String filmNumber = films.get(i).asText().replaceAll("\\D", "");
+            switch (filmNumber) {
+                case "1":
+                    titles.add("A New Hope");
+                    break;
+                case "2":
+                    titles.add("The Empire Strikes Back");
+                    break;
+                case "3":
+                    titles.add("Return of the Jedi");
+                    break;
+            }
+        }
+
+        return titles.toArray(new String[0]);
+    }
+
+    private boolean isExist(String name) {
+        return characterList.stream().anyMatch(character -> character.name().equals(name));
     }
 
     private static JsonNode parsePath(String characterPath) throws URISyntaxException, IOException {
@@ -57,24 +92,26 @@ public class SWAPIParser {
     }
 
     public void printUniqueCharacters() {
-        AtomicInteger counter = new AtomicInteger(1);
-        uniqueCharacters.forEach((key, value) -> System.out.println(counter.incrementAndGet() + "\tCharacter: " + key
-                + "\n\tSpecification: " + value));
+        AtomicInteger counter = new AtomicInteger(0);
+        characterList.forEach(character -> System.out.println(
+                        counter.incrementAndGet() +
+                        "\tCharacter: " + character.name() +
+                        "\n\tSpecification: " + character.species()[0].name()));
     }
 
-    public void printMovies() {
-        for (SWMovie movie: swMovies) {
-            System.out.println("\nMovie: " + movie.title());
-            for (SWCharacter character: movie.swCharacters()) {
-                System.out.println("\tCharacter: " + character.name());
-                for (SWSpecification specification: character.swSpecifications()) {
-                    System.out.println("\t\tSpecification: " + specification.name());
-                }
-            }
-        }
+    public List<SWCharacter> getCharacterList() {
+        return characterList;
     }
 
-    public List<SWMovie> getSwMovies() {
-        return swMovies;
-    }
+//    public String[][] getCharactersAsString() {
+//        String[][] characters = new String[characterList.size()][11];
+//        for (int i = 0; i < characterList.size(); i++) {
+//            for (int j = 0; j < 11; j++) {
+//                characters[]
+//
+//            }
+//
+//        }
+//    }
+
 }

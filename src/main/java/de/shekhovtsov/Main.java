@@ -11,7 +11,9 @@ public class Main {
         SWAPIParser swapiParser = new SWAPIParser();
         swapiParser.parseSWAPI(path);
         swapiParser.printUniqueCharacters();
-        swapiParser.printMovies();
+
+        CsvWriter csvWriter = new CsvWriter();
+        csvWriter.writeCsv("SWCustomers.csv", swapiParser.characterList);
 
     }
 }
