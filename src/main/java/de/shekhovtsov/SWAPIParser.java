@@ -29,13 +29,11 @@ public class SWAPIParser {
 
         for (String characterPath: characterPathSet) {
             JsonNode character = parsePath(characterPath);
-            if (!isExist(character.get("name").asText())) {
-                parseCustomer(character);
-            }
+            characterList.add(parseCustomer(character));
         }
     }
 
-    private void parseCustomer(JsonNode character) throws URISyntaxException, IOException {
+    private SWCharacter parseCustomer(JsonNode character) throws URISyntaxException, IOException {
         String name = character.get("name").asText();
         String height = character.get("height").asText();
         String mass = character.get("mass").asText();
@@ -45,11 +43,11 @@ public class SWAPIParser {
         String birth_year = character.get("birth_year").asText();
         String gender = character.get("gender").asText();
         String[] films = getFilms(character.get("films"));
-        SWSpecification[] species = getSpecies(character.get("species"));
-        characterList.add(new SWCharacter(name, height, mass, hair_color, skin_color, eye_color, birth_year, gender, species, films));
+        SWSpecification[] species = parseSpecies(character.get("species"));
+        return new SWCharacter(name, height, mass, hair_color, skin_color, eye_color, birth_year, gender, species, films);
     }
 
-    private SWSpecification[] getSpecies(JsonNode species) throws URISyntaxException, IOException {
+    private SWSpecification[] parseSpecies(JsonNode species) throws URISyntaxException, IOException {
         String name = "unknown";
         if (species.get(0) != null) {
             name = parsePath(species.get(0).asText()).get("name").asText();
@@ -77,12 +75,8 @@ public class SWAPIParser {
         return titles.toArray(new String[0]);
     }
 
-    private boolean isExist(String name) {
-        return characterList.stream().anyMatch(character -> character.name().equals(name));
-    }
-
-    private static JsonNode parsePath(String characterPath) throws URISyntaxException, IOException {
-        URL url = (new URI(characterPath)).toURL();
+    private JsonNode parsePath(String path) throws URISyntaxException, IOException {
+        URL url = (new URI(path)).toURL();
 
         HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
 
