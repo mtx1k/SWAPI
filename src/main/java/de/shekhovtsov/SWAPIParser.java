@@ -11,10 +11,9 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
 public class SWAPIParser {
-    List<SWCharacter> characterList = new ArrayList<>();
+    private final List<SWCharacter> characterList = new ArrayList<>();
 
     public void parseSWAPI(String path) throws URISyntaxException, IOException {
         JsonNode root = parsePath(path);
@@ -102,16 +101,5 @@ public class SWAPIParser {
     public List<SWCharacter> getCharacterList() {
         return characterList;
     }
-
-//    public String[][] getCharactersAsString() {
-//        String[][] characters = new String[characterList.size()][11];
-//        for (int i = 0; i < characterList.size(); i++) {
-//            for (int j = 0; j < 11; j++) {
-//                characters[]
-//
-//            }
-//
-//        }
-//    }
 
 }

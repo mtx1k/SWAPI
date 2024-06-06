@@ -13,7 +13,7 @@ public class Main {
         swapiParser.printUniqueCharacters();
 
         CsvWriter csvWriter = new CsvWriter();
-        csvWriter.writeCsv("SWCustomers.csv", swapiParser.characterList);
+        csvWriter.writeCsv("SWCustomers.csv", swapiParser.getCharacterList());
 
     }
 }
