@@ -18,14 +18,19 @@ public class SWAPIParser {
     public void parseSWAPI(String path) throws URISyntaxException, IOException {
         JsonNode root = parsePath(path);
         JsonNode movies = root.get("results");
+        Set<String> characterPathSet = new HashSet<>();
 
         for (int i = 0; i < 3; i++) {
             JsonNode characters = movies.get(i).get("characters");
             for (int j = 0; j < characters.size(); j++) {
-                JsonNode character = parsePath(characters.get(j).asText());
-                if (!isExist(character.get("name").asText())) {
-                    parseCustomer(character);
-                }
+                characterPathSet.add(characters.get(j).asText());
+            }
+        }
+
+        for (String characterPath: characterPathSet) {
+            JsonNode character = parsePath(characterPath);
+            if (!isExist(character.get("name").asText())) {
+                parseCustomer(character);
             }
         }
     }
